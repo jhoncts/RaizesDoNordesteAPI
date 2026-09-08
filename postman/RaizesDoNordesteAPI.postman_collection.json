@@ -43,6 +43,17 @@
         },
         {
           "name": "T01 - Login valido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const resposta = pm.response.json();\r\npm.collectionVariables.set(\"token\", resposta.access_token);"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [],
@@ -81,7 +92,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{token}}hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{{token}}zdWIiOiI0IiwicGVyZmlsIjoiQ0xJRU5URSIsImV4cCI6MTc4ODg5Mjg0OH0.rMIFhpnnO36gdapozfYiQupXLBTbhijWNuUhXENglz8",
                   "type": "string"
                 }
               ]
@@ -119,7 +130,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{token}}hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{{token}}zdWIiOiI0IiwicGVyZmlsIjoiQ0xJRU5URSIsImV4cCI6MTc4ODg5Mjg0OH0.rMIFhpnnO36gdapozfYiQupXLBTbhijWNuUhXENglz8",
                   "type": "string"
                 }
               ]
@@ -156,7 +167,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{token}}hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{{token}}zdWIiOiI0IiwicGVyZmlsIjoiQ0xJRU5URSIsImV4cCI6MTc4ODg5Mjg0OH0.rMIFhpnnO36gdapozfYiQupXLBTbhijWNuUhXENglz8",
                   "type": "string"
                 }
               ]
@@ -193,7 +204,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{token}}hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{{token}}zdWIiOiI0IiwicGVyZmlsIjoiQ0xJRU5URSIsImV4cCI6MTc4ODg5Mjg0OH0.rMIFhpnnO36gdapozfYiQupXLBTbhijWNuUhXENglz8",
                   "type": "string"
                 }
               ]
@@ -224,13 +235,24 @@
       "item": [
         {
           "name": "T06 - Criar pedido valido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const resposta = pm.response.json();\r\npm.collectionVariables.set(\"pedido_aprovado_id\", resposta.id);"
+                ]
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{token}}hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{{token}}zdWIiOiI0IiwicGVyZmlsIjoiQ0xJRU5URSIsImV4cCI6MTc4ODg5Mjg0OH0.rMIFhpnnO36gdapozfYiQupXLBTbhijWNuUhXENglz8",
                   "type": "string"
                 }
               ]
@@ -271,7 +293,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{token}}hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{{token}}zdWIiOiI0IiwicGVyZmlsIjoiQ0xJRU5URSIsImV4cCI6MTc4ODg5Mjg0OH0.rMIFhpnnO36gdapozfYiQupXLBTbhijWNuUhXENglz8",
                   "type": "string"
                 }
               ]
@@ -303,13 +325,24 @@
         },
         {
           "name": "T15 - Criar pedido para pagamento recusado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const resposta = pm.response.json();\r\npm.collectionVariables.set(\"pedido_recusado_id\", resposta.id);"
+                ]
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}  ",
+                  "value": "{{token}}hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{{token}}zdWIiOiI0IiwicGVyZmlsIjoiQ0xJRU5URSIsImV4cCI6MTc4ODg5Mjg0OH0.rMIFhpnnO36gdapozfYiQupXLBTbhijWNuUhXENglz8  ",
                   "type": "string"
                 }
               ]
@@ -350,7 +383,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}  ",
+                  "value": "{{token}}",
                   "type": "string"
                 }
               ]
@@ -393,7 +426,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{token}}hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{{token}}zdWIiOiI0IiwicGVyZmlsIjoiQ0xJRU5URSIsImV4cCI6MTc4ODg5Mjg0OH0.rMIFhpnnO36gdapozfYiQupXLBTbhijWNuUhXENglz8",
                   "type": "string"
                 }
               ]
@@ -410,7 +443,7 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:8000/pagamentos/mock/7",
+              "raw": "http://127.0.0.1:8000/pagamentos/mock/{{pedido_aprovado_id}}",
               "protocol": "http",
               "host": [
                 "127",
@@ -422,7 +455,7 @@
               "path": [
                 "pagamentos",
                 "mock",
-                "7"
+                "{{pedido_aprovado_id}}"
               ]
             }
           },
@@ -436,7 +469,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}  ",
+                  "value": "{{token}}hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{{token}}zdWIiOiI0IiwicGVyZmlsIjoiQ0xJRU5URSIsImV4cCI6MTc4ODg5Mjg0OH0.rMIFhpnnO36gdapozfYiQupXLBTbhijWNuUhXENglz8  ",
                   "type": "string"
                 }
               ]
@@ -453,7 +486,7 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:8000/pagamentos/mock/8",
+              "raw": "http://127.0.0.1:8000/pagamentos/mock/{{pedido_recusado_id}}",
               "protocol": "http",
               "host": [
                 "127",
@@ -465,7 +498,7 @@
               "path": [
                 "pagamentos",
                 "mock",
-                "8"
+                "{{pedido_recusado_id}}"
               ]
             }
           },
@@ -509,7 +542,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}  ",
+                  "value": "{{token}}hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{{token}}zdWIiOiI0IiwicGVyZmlsIjoiQ0xJRU5URSIsImV4cCI6MTc4ODg5Mjg0OH0.rMIFhpnnO36gdapozfYiQupXLBTbhijWNuUhXENglz8  ",
                   "type": "string"
                 }
               ]
@@ -550,7 +583,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}  ",
+                  "value": "{{token}}hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{{token}}zdWIiOiI0IiwicGVyZmlsIjoiQ0xJRU5URSIsImV4cCI6MTc4ODg5Mjg0OH0.rMIFhpnnO36gdapozfYiQupXLBTbhijWNuUhXENglz8  ",
                   "type": "string"
                 }
               ]
@@ -591,7 +624,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}  ",
+                  "value": "{{token}}hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{{token}}zdWIiOiI0IiwicGVyZmlsIjoiQ0xJRU5URSIsImV4cCI6MTc4ODg5Mjg0OH0.rMIFhpnnO36gdapozfYiQupXLBTbhijWNuUhXENglz8  ",
                   "type": "string"
                 }
               ]
@@ -632,7 +665,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}  ",
+                  "value": "{{token}}hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{{token}}zdWIiOiI0IiwicGVyZmlsIjoiQ0xJRU5URSIsImV4cCI6MTc4ODg5Mjg0OH0.rMIFhpnnO36gdapozfYiQupXLBTbhijWNuUhXENglz8  ",
                   "type": "string"
                 }
               ]
@@ -673,7 +706,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}  ",
+                  "value": "{{token}}hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{{token}}zdWIiOiI0IiwicGVyZmlsIjoiQ0xJRU5URSIsImV4cCI6MTc4ODg5Mjg0OH0.rMIFhpnnO36gdapozfYiQupXLBTbhijWNuUhXENglz8  ",
                   "type": "string"
                 }
               ]
@@ -707,6 +740,20 @@
           "response": []
         }
       ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "pedido_aprovado_id",
+      "value": ""
+    },
+    {
+      "key": "pedido_recusado_id",
+      "value": ""
     }
   ]
 }
