@@ -2,6 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.application.auth_service import obter_usuario_atual
+from app.application.errors import (
+    ErroResposta,
+    ErroValidacaoResposta,
+)
 from app.application.permissions import exigir_gerente
 from app.application.schemas import (
     ProdutoResposta,
@@ -22,6 +26,20 @@ router = APIRouter(
     "",
     response_model=UnidadeResposta,
     status_code=status.HTTP_201_CREATED,
+    responses={
+        401: {
+            "model": ErroResposta,
+            "description": "Não autenticado ou token inválido",
+        },
+        403: {
+            "model": ErroResposta,
+            "description": "Acesso permitido apenas para gerente",
+        },
+        422: {
+            "model": ErroValidacaoResposta,
+            "description": "Erro de validação dos dados enviados",
+        },
+    },
 )
 def criar_unidade(
     dados: UnidadeCriacao,
@@ -44,6 +62,12 @@ def criar_unidade(
 @router.get(
     "",
     response_model=list[UnidadeResposta],
+    responses={
+        401: {
+            "model": ErroResposta,
+            "description": "Não autenticado ou token inválido",
+        },
+    },
 )
 def listar_unidades(
     db: Session = Depends(get_db),
@@ -55,6 +79,20 @@ def listar_unidades(
 @router.get(
     "/{unidade_id}/cardapio",
     response_model=list[ProdutoResposta],
+    responses={
+        401: {
+            "model": ErroResposta,
+            "description": "Não autenticado ou token inválido",
+        },
+        404: {
+            "model": ErroResposta,
+            "description": "Unidade não encontrada",
+        },
+        422: {
+            "model": ErroValidacaoResposta,
+            "description": "Erro de validação dos dados enviados",
+        },
+    },
 )
 def listar_cardapio(
     unidade_id: int,

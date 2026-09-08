@@ -1,6 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.application.errors import (
+    ErroResposta,
+    ErroValidacaoResposta,
+)
 from app.application.schemas import UsuarioCriacao, UsuarioResposta
 from app.domain.enums import PerfilUsuario
 from app.infrastructure.database import get_db
@@ -18,6 +22,16 @@ router = APIRouter(
     "",
     response_model=UsuarioResposta,
     status_code=status.HTTP_201_CREATED,
+    responses={
+        409: {
+            "model": ErroResposta,
+            "description": "E-mail já cadastrado",
+        },
+        422: {
+            "model": ErroValidacaoResposta,
+            "description": "Erro de validação dos dados enviados",
+        },
+    },
 )
 def criar_usuario(
     dados: UsuarioCriacao,

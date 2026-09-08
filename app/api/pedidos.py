@@ -4,6 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.application.auth_service import obter_usuario_atual
+from app.application.errors import (
+    ErroResposta,
+    ErroValidacaoResposta,
+)
 from app.application.permissions import (
     exigir_atendente_ou_gerente,
     exigir_cozinha_ou_gerente,
@@ -36,6 +40,24 @@ router = APIRouter(
     "",
     response_model=PedidoResposta,
     status_code=status.HTTP_201_CREATED,
+    responses={
+        401: {
+            "model": ErroResposta,
+            "description": "Não autenticado ou token inválido",
+        },
+        404: {
+            "model": ErroResposta,
+            "description": "Unidade ou produto não encontrado",
+        },
+        409: {
+            "model": ErroResposta,
+            "description": "Estoque insuficiente",
+        },
+        422: {
+            "model": ErroValidacaoResposta,
+            "description": "Erro de validação dos dados enviados",
+        },
+    },
 )
 def criar_pedido(
     dados: PedidoCriacao,
@@ -138,6 +160,16 @@ def criar_pedido(
 @router.get(
     "",
     response_model=list[PedidoResposta],
+    responses={
+        401: {
+            "model": ErroResposta,
+            "description": "Não autenticado ou token inválido",
+        },
+        422: {
+            "model": ErroValidacaoResposta,
+            "description": "Erro de validação dos dados enviados",
+        },
+    },
 )
 def listar_pedidos(
     canal_pedido: CanalPedido | None = Query(
@@ -163,6 +195,20 @@ def listar_pedidos(
 @router.get(
     "/{pedido_id}/itens",
     response_model=list[ItemPedidoResposta],
+    responses={
+        401: {
+            "model": ErroResposta,
+            "description": "Não autenticado ou token inválido",
+        },
+        404: {
+            "model": ErroResposta,
+            "description": "Pedido não encontrado",
+        },
+        422: {
+            "model": ErroValidacaoResposta,
+            "description": "Erro de validação dos dados enviados",
+        },
+    },
 )
 def listar_itens_pedido(
     pedido_id: int,
@@ -197,6 +243,28 @@ def listar_itens_pedido(
 @router.patch(
     "/{pedido_id}/pronto",
     response_model=PedidoResposta,
+    responses={
+        401: {
+            "model": ErroResposta,
+            "description": "Não autenticado ou token inválido",
+        },
+        403: {
+            "model": ErroResposta,
+            "description": "Acesso permitido apenas para cozinha ou gerente",
+        },
+        404: {
+            "model": ErroResposta,
+            "description": "Pedido não encontrado",
+        },
+        409: {
+            "model": ErroResposta,
+            "description": "Pedido não está em preparo",
+        },
+        422: {
+            "model": ErroValidacaoResposta,
+            "description": "Erro de validação dos dados enviados",
+        },
+    },
 )
 def marcar_pedido_pronto(
     pedido_id: int,
@@ -245,6 +313,28 @@ def marcar_pedido_pronto(
 @router.patch(
     "/{pedido_id}/entregue",
     response_model=PedidoResposta,
+    responses={
+        401: {
+            "model": ErroResposta,
+            "description": "Não autenticado ou token inválido",
+        },
+        403: {
+            "model": ErroResposta,
+            "description": "Acesso permitido apenas para atendente ou gerente",
+        },
+        404: {
+            "model": ErroResposta,
+            "description": "Pedido não encontrado",
+        },
+        409: {
+            "model": ErroResposta,
+            "description": "Pedido não está pronto",
+        },
+        422: {
+            "model": ErroValidacaoResposta,
+            "description": "Erro de validação dos dados enviados",
+        },
+    },
 )
 def marcar_pedido_entregue(
     pedido_id: int,

@@ -2,6 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.application.auth_service import obter_usuario_atual
+from app.application.errors import (
+    ErroResposta,
+    ErroValidacaoResposta,
+)
 from app.application.permissions import exigir_gerente
 from app.application.schemas import (
     EstoqueCriacao,
@@ -22,6 +26,28 @@ router = APIRouter(
     "",
     response_model=EstoqueResposta,
     status_code=status.HTTP_201_CREATED,
+    responses={
+        401: {
+            "model": ErroResposta,
+            "description": "Não autenticado ou token inválido",
+        },
+        403: {
+            "model": ErroResposta,
+            "description": "Acesso permitido apenas para gerente",
+        },
+        404: {
+            "model": ErroResposta,
+            "description": "Unidade ou produto não encontrado",
+        },
+        409: {
+            "model": ErroResposta,
+            "description": "Estoque já cadastrado para este produto nesta unidade",
+        },
+        422: {
+            "model": ErroValidacaoResposta,
+            "description": "Erro de validação dos dados enviados",
+        },
+    },
 )
 def criar_estoque(
     dados: EstoqueCriacao,
@@ -83,6 +109,12 @@ def criar_estoque(
 @router.get(
     "",
     response_model=list[EstoqueResposta],
+    responses={
+        401: {
+            "model": ErroResposta,
+            "description": "Não autenticado ou token inválido",
+        },
+    },
 )
 def listar_estoques(
     db: Session = Depends(get_db),
@@ -94,6 +126,24 @@ def listar_estoques(
 @router.patch(
     "/{estoque_id}/entrada",
     response_model=EstoqueResposta,
+    responses={
+        401: {
+            "model": ErroResposta,
+            "description": "Não autenticado ou token inválido",
+        },
+        403: {
+            "model": ErroResposta,
+            "description": "Acesso permitido apenas para gerente",
+        },
+        404: {
+            "model": ErroResposta,
+            "description": "Estoque não encontrado",
+        },
+        422: {
+            "model": ErroValidacaoResposta,
+            "description": "Erro de validação dos dados enviados",
+        },
+    },
 )
 def entrada_estoque(
     estoque_id: int,
@@ -124,6 +174,28 @@ def entrada_estoque(
 @router.patch(
     "/{estoque_id}/saida",
     response_model=EstoqueResposta,
+    responses={
+        401: {
+            "model": ErroResposta,
+            "description": "Não autenticado ou token inválido",
+        },
+        403: {
+            "model": ErroResposta,
+            "description": "Acesso permitido apenas para gerente",
+        },
+        404: {
+            "model": ErroResposta,
+            "description": "Estoque não encontrado",
+        },
+        409: {
+            "model": ErroResposta,
+            "description": "Estoque insuficiente",
+        },
+        422: {
+            "model": ErroValidacaoResposta,
+            "description": "Erro de validação dos dados enviados",
+        },
+    },
 )
 def saida_estoque(
     estoque_id: int,

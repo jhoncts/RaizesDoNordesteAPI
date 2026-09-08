@@ -7,6 +7,10 @@ from app.application.auth_service import (
     criar_access_token,
     obter_usuario_atual,
 )
+from app.application.errors import (
+    ErroResposta,
+    ErroValidacaoResposta,
+)
 from app.application.schemas import UsuarioResposta
 from app.infrastructure.database import get_db
 from app.infrastructure.models import Usuario
@@ -21,6 +25,16 @@ router = APIRouter(
 @router.post(
     "/login",
     response_model=TokenResposta,
+    responses={
+        401: {
+            "model": ErroResposta,
+            "description": "E-mail ou senha inválidos",
+        },
+        422: {
+            "model": ErroValidacaoResposta,
+            "description": "Erro de validação dos dados enviados",
+        },
+    },
 )
 def login(
     dados: LoginDados,
@@ -49,6 +63,12 @@ def login(
 @router.get(
     "/me",
     response_model=UsuarioResposta,
+    responses={
+        401: {
+            "model": ErroResposta,
+            "description": "Não autenticado ou token inválido",
+        },
+    },
 )
 def usuario_atual(
     usuario: Usuario = Depends(obter_usuario_atual),
