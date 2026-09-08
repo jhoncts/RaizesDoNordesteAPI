@@ -4,6 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.application.auth_service import obter_usuario_atual
+from app.application.permissions import (
+    exigir_atendente_ou_gerente,
+    exigir_cozinha_ou_gerente,
+)
 from app.application.schemas import (
     ItemPedidoResposta,
     PedidoCriacao,
@@ -12,6 +16,7 @@ from app.application.schemas import (
 from app.domain.enums import CanalPedido, StatusPedido
 from app.infrastructure.database import get_db
 from app.infrastructure.models import (
+    Auditoria,
     Estoque,
     ItemPedido,
     Pedido,
@@ -187,3 +192,99 @@ def listar_itens_pedido(
     )
 
     return itens
+
+
+@router.patch(
+    "/{pedido_id}/pronto",
+    response_model=PedidoResposta,
+)
+def marcar_pedido_pronto(
+    pedido_id: int,
+    db: Session = Depends(get_db),
+    usuario: Usuario = Depends(exigir_cozinha_ou_gerente),
+):
+    pedido = (
+        db.query(Pedido)
+        .filter(Pedido.id == pedido_id)
+        .first()
+    )
+
+    if pedido is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Pedido não encontrado",
+        )
+
+    if pedido.status != StatusPedido.EM_PREPARO:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Pedido não está em preparo",
+        )
+
+    status_anterior = pedido.status
+    pedido.status = StatusPedido.PRONTO
+
+    auditoria = Auditoria(
+        usuario_id=usuario.id,
+        acao="ALTERACAO_STATUS_PEDIDO",
+        entidade="Pedido",
+        entidade_id=pedido.id,
+        detalhes=(
+            f"Status alterado de "
+            f"{status_anterior.value} para {pedido.status.value}"
+        ),
+    )
+
+    db.add(auditoria)
+    db.commit()
+    db.refresh(pedido)
+
+    return pedido
+
+
+@router.patch(
+    "/{pedido_id}/entregue",
+    response_model=PedidoResposta,
+)
+def marcar_pedido_entregue(
+    pedido_id: int,
+    db: Session = Depends(get_db),
+    usuario: Usuario = Depends(exigir_atendente_ou_gerente),
+):
+    pedido = (
+        db.query(Pedido)
+        .filter(Pedido.id == pedido_id)
+        .first()
+    )
+
+    if pedido is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Pedido não encontrado",
+        )
+
+    if pedido.status != StatusPedido.PRONTO:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Pedido não está pronto",
+        )
+
+    status_anterior = pedido.status
+    pedido.status = StatusPedido.ENTREGUE
+
+    auditoria = Auditoria(
+        usuario_id=usuario.id,
+        acao="ALTERACAO_STATUS_PEDIDO",
+        entidade="Pedido",
+        entidade_id=pedido.id,
+        detalhes=(
+            f"Status alterado de "
+            f"{status_anterior.value} para {pedido.status.value}"
+        ),
+    )
+
+    db.add(auditoria)
+    db.commit()
+    db.refresh(pedido)
+
+    return pedido

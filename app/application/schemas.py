@@ -3,7 +3,12 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from app.domain.enums import CanalPedido, PerfilUsuario, StatusPedido
+from app.domain.enums import (
+    CanalPedido,
+    PerfilUsuario,
+    StatusPagamento,
+    StatusPedido,
+)
 
 
 class UsuarioCriacao(BaseModel):
@@ -114,3 +119,19 @@ class PedidoResposta(BaseModel):
         from_attributes=True,
         populate_by_name=True,
     )
+
+
+class PagamentoMockEntrada(BaseModel):
+    aprovado: bool
+
+
+class PagamentoResposta(BaseModel):
+    id: int
+    pedido_id: int
+    status: StatusPagamento
+    valor: Decimal
+    transacao_externa: str | None
+    criado_em: datetime
+    atualizado_em: datetime
+
+    model_config = ConfigDict(from_attributes=True)
