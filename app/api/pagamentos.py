@@ -84,6 +84,10 @@ def processar_pagamento_mock(
         status_pagamento = StatusPagamento.APROVADO
         pedido.status = StatusPedido.EM_PREPARO
 
+        if usuario.consentimento_fidelidade:
+            pontos_ganhos = int(pedido.valor_total)
+            usuario.pontos_fidelidade += pontos_ganhos
+
     else:
         status_pagamento = StatusPagamento.RECUSADO
         pedido.status = StatusPedido.PAGAMENTO_RECUSADO
@@ -129,7 +133,6 @@ def processar_pagamento_mock(
     )
 
     db.add(auditoria)
-
     db.commit()
     db.refresh(pagamento)
 

@@ -23,9 +23,25 @@ class UsuarioResposta(BaseModel):
     email: EmailStr
     perfil: PerfilUsuario
     ativo: bool
+    consentimento_fidelidade: bool
+    pontos_fidelidade: int
     criado_em: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ConsentimentoFidelidadeAtualizacao(BaseModel):
+    consentimento: bool
+
+
+class ResgateFidelidadeEntrada(BaseModel):
+    pontos: int = Field(gt=0)
+
+
+class ResgateFidelidadeResposta(BaseModel):
+    pontos_resgatados: int
+    saldo_pontos: int
+    mensagem: str
 
 
 class UnidadeCriacao(BaseModel):

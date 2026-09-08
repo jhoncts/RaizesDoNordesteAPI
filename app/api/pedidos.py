@@ -241,6 +241,97 @@ def listar_itens_pedido(
 
 
 @router.patch(
+    "/{pedido_id}/cancelar",
+    response_model=PedidoResposta,
+    responses={
+        401: {
+            "model": ErroResposta,
+            "description": "Não autenticado ou token inválido",
+        },
+        404: {
+            "model": ErroResposta,
+            "description": "Pedido não encontrado",
+        },
+        409: {
+            "model": ErroResposta,
+            "description": "Pedido não pode mais ser cancelado",
+        },
+        422: {
+            "model": ErroValidacaoResposta,
+            "description": "Erro de validação dos dados enviados",
+        },
+    },
+)
+def cancelar_pedido(
+    pedido_id: int,
+    db: Session = Depends(get_db),
+    usuario: Usuario = Depends(obter_usuario_atual),
+):
+    pedido = (
+        db.query(Pedido)
+        .filter(
+            Pedido.id == pedido_id,
+            Pedido.usuario_id == usuario.id,
+        )
+        .first()
+    )
+
+    if pedido is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Pedido não encontrado",
+        )
+
+    if pedido.status != StatusPedido.AGUARDANDO_PAGAMENTO:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "Somente pedidos aguardando pagamento "
+                "podem ser cancelados"
+            ),
+        )
+
+    itens = (
+        db.query(ItemPedido)
+        .filter(ItemPedido.pedido_id == pedido.id)
+        .all()
+    )
+
+    for item in itens:
+        estoque = (
+            db.query(Estoque)
+            .filter(
+                Estoque.unidade_id == pedido.unidade_id,
+                Estoque.produto_id == item.produto_id,
+            )
+            .first()
+        )
+
+        if estoque is not None:
+            estoque.quantidade += item.quantidade
+
+    status_anterior = pedido.status
+    pedido.status = StatusPedido.CANCELADO
+
+    auditoria = Auditoria(
+        usuario_id=usuario.id,
+        acao="CANCELAMENTO_PEDIDO",
+        entidade="Pedido",
+        entidade_id=pedido.id,
+        detalhes=(
+            f"Status alterado de "
+            f"{status_anterior.value} para {pedido.status.value}"
+        ),
+    )
+
+    db.add(auditoria)
+    db.commit()
+    db.refresh(pedido)
+
+    return pedido
+
+
+@router.patch(
     "/{pedido_id}/pronto",
     response_model=PedidoResposta,
     responses={

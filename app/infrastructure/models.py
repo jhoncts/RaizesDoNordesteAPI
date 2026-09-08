@@ -60,6 +60,18 @@ class Usuario(Base):
         default=True,
     )
 
+    consentimento_fidelidade: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+    )
+
+    pontos_fidelidade: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+    )
+
     criado_em: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
