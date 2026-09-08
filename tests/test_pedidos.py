@@ -3,6 +3,7 @@ from decimal import Decimal
 from app.domain.enums import PerfilUsuario, StatusPedido
 from app.infrastructure.database import get_db
 from app.infrastructure.models import (
+    Auditoria,
     Estoque,
     Pedido,
     Produto,
@@ -455,3 +456,81 @@ def test_fluxo_completo_pedido(client):
 
     assert resposta_entregue.status_code == 200
     assert resposta_entregue.json()["status"] == "ENTREGUE"
+
+
+def test_pagamento_gera_registro_de_auditoria(client):
+    token = criar_cliente_e_obter_token(
+        client,
+        "Cliente Auditoria",
+        "auditoria.pagamento@empresa.com.br",
+    )
+
+    unidade_id, produto_id = preparar_catalogo(
+        client,
+        quantidade_estoque=10,
+    )
+
+    resposta_pedido = client.post(
+        "/pedidos",
+        headers={
+            "Authorization": f"Bearer {token}",
+        },
+        json={
+            "unidade_id": unidade_id,
+            "canalPedido": "APP",
+            "itens": [
+                {
+                    "produto_id": produto_id,
+                    "quantidade": 1,
+                }
+            ],
+        },
+    )
+
+    assert resposta_pedido.status_code == 201
+
+    pedido_id = resposta_pedido.json()["id"]
+
+    resposta_pagamento = client.post(
+        f"/pagamentos/mock/{pedido_id}",
+        headers={
+            "Authorization": f"Bearer {token}",
+        },
+        json={
+            "aprovado": True,
+        },
+    )
+
+    assert resposta_pagamento.status_code == 201
+
+    dados_pagamento = resposta_pagamento.json()
+
+    pagamento_id = dados_pagamento["id"]
+
+    override_get_db = client.app.dependency_overrides.get(get_db)
+
+    assert override_get_db is not None
+
+    gerador_db = override_get_db()
+    db = next(gerador_db)
+
+    try:
+        auditoria = (
+            db.query(Auditoria)
+            .filter(
+                Auditoria.acao == "PROCESSAMENTO_PAGAMENTO",
+                Auditoria.entidade == "Pagamento",
+                Auditoria.entidade_id == pagamento_id,
+            )
+            .first()
+        )
+
+        assert auditoria is not None
+        assert auditoria.usuario_id is not None
+        assert auditoria.acao == "PROCESSAMENTO_PAGAMENTO"
+        assert auditoria.entidade == "Pagamento"
+        assert auditoria.entidade_id == pagamento_id
+        assert "APROVADO" in auditoria.detalhes
+
+    finally:
+        gerador_db.close()
