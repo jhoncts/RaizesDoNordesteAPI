@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from app.api.auth import router as auth_router
+from app.api.estoques import router as estoques_router
 from app.api.produtos import router as produtos_router
 from app.api.unidades import router as unidades_router
 from app.api.usuarios import router as usuarios_router
@@ -15,6 +16,7 @@ app.include_router(auth_router)
 app.include_router(usuarios_router)
 app.include_router(unidades_router)
 app.include_router(produtos_router)
+app.include_router(estoques_router)
 
 
 @app.get("/")
