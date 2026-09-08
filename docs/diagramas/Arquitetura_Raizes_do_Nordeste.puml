@@ -1,0 +1,77 @@
+@startuml
+
+top to bottom direction
+
+skinparam shadowing false
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontColor black
+skinparam rectangleBackgroundColor white
+skinparam linetype polyline
+skinparam nodesep 35
+skinparam ranksep 40
+
+title Arquitetura em camadas - Raízes do Nordeste API
+
+
+rectangle "**Clientes / Consumidores**\nApp | Web | Totem | Balcão\nPostman" as Clientes
+
+rectangle "**Testes**\nPytest | tests/" as Testes
+
+
+rectangle "Raízes do Nordeste API — Python 3.12" as Sistema {
+
+    rectangle "**FastAPI / app/main.py**\nInicialização e registro dos routers\nHandlers globais de erro\nGeração OpenAPI / Swagger" as Main
+
+    rectangle "**API / Rotas HTTP**\napp/api/\nRequisições, dependências e respostas\nAuth, usuários, unidades, produtos,\nestoques, pedidos e pagamentos" as API
+
+    rectangle "**Application**\napp/application/\nSchemas de entrada/saída (Pydantic)\nAutenticação JWT e autorização\nPermissões e erros padronizados" as Application
+
+    rectangle "**Domain**\napp/domain/enums.py\nPerfilUsuario | CanalPedido\nStatusPedido | StatusPagamento" as Domain
+
+    rectangle "**Infrastructure**\napp/infrastructure/\nSQLAlchemy: conexão, sessões e modelos ORM\nConfiguração e variáveis de ambiente\nSegurança de senhas (Argon2) e seed" as Infra
+
+    rectangle "**Simulação de Gateway de Pagamento**\n**(Mock)**\nIntegração simulada internamente\napp/api/pagamentos.py\nSem serviço externo real" as Mock
+}
+
+
+rectangle "**SQLite**\nPersistência relacional" as DB
+
+rectangle "**Alembic**\nalembic/\nMigrations do schema" as Alembic
+
+
+' Consumidores e testes
+
+Clientes -down-> Main : HTTP / JSON
+Testes ..> Main : validação da aplicação
+
+
+' Inicialização da aplicação
+
+Main -down-> API : registra routers
+Main -[norank]-> Application : handlers de erro
+
+
+' Camada API
+
+API -down-> Application : utiliza
+API -right-> Mock : simulação interna
+API --> Infra : acesso direto
+API -[norank]-> Domain : utiliza enums
+
+
+' Camada Application
+
+Application -right-> Domain : utiliza enums
+Application -down-> Infra : utiliza
+
+
+' Infrastructure e persistência
+
+Infra -[norank]-> Domain : utiliza enums
+Infra -down-> DB : SQLAlchemy
+
+Alembic -left-> DB : migrations
+
+
+@enduml

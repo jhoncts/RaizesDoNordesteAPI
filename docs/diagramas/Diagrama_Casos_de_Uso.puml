@@ -1,0 +1,79 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam linetype polyline
+skinparam actorStyle stickman
+skinparam backgroundColor white
+skinparam monochrome true
+skinparam defaultFontColor black
+skinparam usecaseBackgroundColor white
+skinparam nodesep 25
+skinparam ranksep 30
+title Diagrama de Casos de Uso - Raízes do Nordeste API
+
+actor "Cliente\n(App / Web / Totem)" as Cliente
+actor "Atendente\n(Balcão)" as Atendente
+
+rectangle "Raízes do Nordeste API" {
+    usecase "Cancelar pedido" as UC06
+    usecase "Consultar cardápio" as UC03
+    usecase "Autenticar-se" as UC02
+    usecase "Realizar pedido" as UC04
+    usecase "Cadastrar-se" as UC01
+    usecase "Gerenciar fidelidade" as UC08
+    usecase "Confirmar entrega" as UC11
+    usecase "Processar pagamento" as UC07
+    usecase "Consultar pedidos" as UC05
+    usecase "Marcar pedido como pronto" as UC10
+    usecase "Gerenciar estoque" as UC13
+    usecase "Gerenciar unidades" as UC09
+    usecase "Gerenciar produtos" as UC12
+
+  ' Agrupa operação e administração na segunda coluna.
+  UC10 -[hidden]right- UC13
+  UC13 -[hidden]right- UC09
+  UC09 -[hidden]right- UC12
+
+  ' Separa as duas colunas.
+  UC06 -[hidden]down- UC10
+}
+
+actor "Gateway de\nPagamento" as Gateway
+actor "Cozinha" as Cozinha
+actor "Gerente / Admin" as Gerente
+
+' Ordenação visual dos atores à direita.
+Gateway -[hidden]right- Cozinha
+Cozinha -[hidden]right- Gerente
+
+' CLIENTE
+Cliente -- UC02
+Cliente -- UC04
+Cliente -- UC05
+Cliente -- UC06
+Cliente -- UC01
+Cliente -- UC08
+Cliente -- UC03
+Cliente -- UC07
+
+' ATENDENTE
+Atendente -- UC02
+Atendente -- UC11
+Atendente -- UC04
+
+' GATEWAY DE PAGAMENTO
+UC07 -- Gateway
+
+' COZINHA
+UC10 -- Cozinha
+UC02 -- Cozinha
+
+' GERENTE / ADMIN
+UC09 -- Gerente
+UC12 -- Gerente
+UC11 -- Gerente
+UC10 -- Gerente
+UC02 -- Gerente
+UC13 -- Gerente
+
+@enduml

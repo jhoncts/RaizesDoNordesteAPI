@@ -1,0 +1,178 @@
+@startuml
+
+left to right direction
+hide circle
+hide empty methods
+
+skinparam shadowing false
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontColor black
+skinparam classBackgroundColor white
+skinparam classFontStyle bold
+skinparam classAttributeIconSize 0
+skinparam linetype polyline
+skinparam nodesep 35
+skinparam ranksep 55
+
+title Diagrama de Classes - Raízes do Nordeste API
+
+
+class Usuario {
+  id : int
+  nome : str
+  email : str
+  senha_hash : str
+  perfil : PerfilUsuario
+  ativo : bool
+  consentimento_fidelidade : bool
+  pontos_fidelidade : int
+  criado_em : datetime
+}
+
+
+class Unidade {
+  id : int
+  nome : str
+  endereco : str
+  cidade : str
+  ativa : bool
+  criado_em : datetime
+}
+
+
+class Produto {
+  id : int
+  nome : str
+  descricao : str | None
+  preco : Decimal
+  ativo : bool
+  criado_em : datetime
+}
+
+
+class Estoque {
+  id : int
+  unidade_id : int
+  produto_id : int
+  quantidade : int
+  atualizado_em : datetime
+  --
+  unidade : Unidade
+  produto : Produto
+  --
+  {unique: unidade_id + produto_id}
+}
+
+
+class Pedido {
+  id : int
+  usuario_id : int
+  unidade_id : int
+  canal_pedido : CanalPedido
+  status : StatusPedido
+  valor_total : Decimal
+  criado_em : datetime
+  atualizado_em : datetime
+  --
+  usuario : Usuario
+  unidade : Unidade
+}
+
+
+class ItemPedido {
+  id : int
+  pedido_id : int
+  produto_id : int
+  quantidade : int
+  preco_unitario : Decimal
+  subtotal : Decimal
+  --
+  pedido : Pedido
+  produto : Produto
+}
+
+
+class Pagamento {
+  id : int
+  pedido_id : int
+  status : StatusPagamento
+  valor : Decimal
+  transacao_externa : str | None
+  criado_em : datetime
+  atualizado_em : datetime
+  --
+  pedido : Pedido
+}
+
+
+class Auditoria {
+  id : int
+  usuario_id : int | None
+  acao : str
+  entidade : str
+  entidade_id : int | None
+  detalhes : str | None
+  criado_em : datetime
+  --
+  usuario : Usuario | None
+}
+
+
+enum PerfilUsuario <<enumeration>> {
+  CLIENTE
+  ATENDENTE
+  COZINHA
+  GERENTE
+}
+
+
+enum CanalPedido <<enumeration>> {
+  APP
+  TOTEM
+  BALCAO
+  PICKUP
+  WEB
+}
+
+
+enum StatusPedido <<enumeration>> {
+  AGUARDANDO_PAGAMENTO
+  PAGAMENTO_RECUSADO
+  EM_PREPARO
+  PRONTO
+  ENTREGUE
+  CANCELADO
+}
+
+
+enum StatusPagamento <<enumeration>> {
+  PENDENTE
+  APROVADO
+  RECUSADO
+}
+
+
+Usuario "1" -- "0..*" Pedido
+Unidade "1" -- "0..*" Pedido
+
+Unidade "1" -- "0..*" Estoque
+Produto "1" -- "0..*" Estoque
+
+Pedido "1" -- "0..*" ItemPedido
+Produto "1" -- "0..*" ItemPedido
+
+Pedido "1" -- "0..*" Pagamento
+
+Usuario "0..1" -- "0..*" Auditoria
+
+
+Usuario ..> PerfilUsuario
+
+Pedido ..> CanalPedido
+Pedido ..> StatusPedido
+
+Pagamento ..> StatusPagamento
+
+
+@enduml

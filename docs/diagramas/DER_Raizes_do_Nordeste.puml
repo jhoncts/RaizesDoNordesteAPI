@@ -1,0 +1,125 @@
+@startuml
+left to right direction
+hide circle
+
+skinparam shadowing false
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontColor black
+skinparam classBackgroundColor white
+skinparam classFontStyle bold
+skinparam classAttributeIconSize 0
+skinparam linetype polyline
+skinparam nodesep 40
+skinparam ranksep 55
+
+title DER - Raízes do Nordeste API
+
+entity "USUARIOS" as usuarios {
+  * id : INTEGER <<PK>>
+  --
+  * nome : VARCHAR(120)
+  * email : VARCHAR(160) <<UNIQUE>>
+  * senha_hash : VARCHAR(255)
+  * perfil : ENUM
+  * ativo : BOOLEAN
+  * consentimento_fidelidade : BOOLEAN
+  * pontos_fidelidade : INTEGER
+  * criado_em : DATETIME
+}
+
+entity "UNIDADES" as unidades {
+  * id : INTEGER <<PK>>
+  --
+  * nome : VARCHAR(120)
+  * endereco : VARCHAR(255)
+  * cidade : VARCHAR(100)
+  * ativa : BOOLEAN
+  * criado_em : DATETIME
+}
+
+entity "PRODUTOS" as produtos {
+  * id : INTEGER <<PK>>
+  --
+  * nome : VARCHAR(120)
+    descricao : VARCHAR(255) NULL
+  * preco : NUMERIC(10,2)
+  * ativo : BOOLEAN
+  * criado_em : DATETIME
+}
+
+entity "ESTOQUES" as estoques {
+  * id : INTEGER <<PK>>
+  --
+  * unidade_id : INTEGER <<FK>>
+  * produto_id : INTEGER <<FK>>
+  * quantidade : INTEGER
+  * atualizado_em : DATETIME
+  --
+  UNIQUE(unidade_id, produto_id)
+}
+
+entity "PEDIDOS" as pedidos {
+  * id : INTEGER <<PK>>
+  --
+  * usuario_id : INTEGER <<FK>>
+  * unidade_id : INTEGER <<FK>>
+  * canal_pedido : ENUM
+  * status : ENUM
+  * valor_total : NUMERIC(10,2)
+  * criado_em : DATETIME
+  * atualizado_em : DATETIME
+}
+
+entity "ITENS_PEDIDO" as itens_pedido {
+  * id : INTEGER <<PK>>
+  --
+  * pedido_id : INTEGER <<FK>>
+  * produto_id : INTEGER <<FK>>
+  * quantidade : INTEGER
+  * preco_unitario : NUMERIC(10,2)
+  * subtotal : NUMERIC(10,2)
+}
+
+entity "PAGAMENTOS" as pagamentos {
+  * id : INTEGER <<PK>>
+  --
+  * pedido_id : INTEGER <<FK>>
+  * status : ENUM
+  * valor : NUMERIC(10,2)
+    transacao_externa : VARCHAR(100) NULL
+  * criado_em : DATETIME
+  * atualizado_em : DATETIME
+}
+
+entity "AUDITORIAS" as auditorias {
+  * id : INTEGER <<PK>>
+  --
+    usuario_id : INTEGER NULL <<FK>>
+  * acao : VARCHAR(120)
+  * entidade : VARCHAR(80)
+    entidade_id : INTEGER NULL
+    detalhes : VARCHAR(500) NULL
+  * criado_em : DATETIME
+}
+
+usuarios ||..o{ pedidos
+unidades ||..o{ pedidos
+unidades ||..o{ estoques
+produtos ||..o{ estoques
+pedidos ||..o{ itens_pedido
+produtos ||..o{ itens_pedido
+pedidos ||..o{ pagamentos
+usuarios |o..o{ auditorias
+
+legend bottom left
+  Campos com * = obrigatórios (NOT NULL; inclui PK)
+  PK = chave primária | FK = chave estrangeira
+  NULL = opcional | UNIQUE = unicidade
+  Cardinalidades: exatamente 1; zero ou um; zero ou muitos
+  Linha tracejada = relacionamento não identificador
+  ENUM = enumeração definida no modelo
+  auditorias.entidade_id = referência lógica, sem FK
+endlegend
+
+@enduml
