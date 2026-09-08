@@ -347,20 +347,17 @@ def test_cancelamento_devolve_estoque(client):
 
 
 def test_fluxo_completo_pedido(client):
-    # 1. Criar cliente e obter token
     token_cliente = criar_cliente_e_obter_token(
         client,
         "Cliente Fluxo",
         "fluxo@empresa.com.br",
     )
 
-    # 2. Preparar catálogo
     unidade_id, produto_id = preparar_catalogo(
         client,
         quantidade_estoque=10,
     )
 
-    # 3. Criar pedido
     resposta_pedido = client.post(
         "/pedidos",
         headers={
@@ -382,7 +379,6 @@ def test_fluxo_completo_pedido(client):
 
     pedido_id = resposta_pedido.json()["id"]
 
-    # 4. Aprovar pagamento
     resposta_pagamento = client.post(
         f"/pagamentos/mock/{pedido_id}",
         headers={
@@ -396,7 +392,6 @@ def test_fluxo_completo_pedido(client):
     assert resposta_pagamento.status_code == 201
     assert resposta_pagamento.json()["status"] == "APROVADO"
 
-    # 5. Confirmar EM_PREPARO
     override_get_db = client.app.dependency_overrides.get(get_db)
 
     assert override_get_db is not None
@@ -414,7 +409,6 @@ def test_fluxo_completo_pedido(client):
         assert pedido is not None
         assert pedido.status == StatusPedido.EM_PREPARO
 
-        # 6. Criar gerente diretamente no banco
         gerente = Usuario(
             nome="Gerente Fluxo",
             email="gerente.fluxo@empresa.com.br",
@@ -428,7 +422,6 @@ def test_fluxo_completo_pedido(client):
     finally:
         gerador_db.close()
 
-    # 7. Login do gerente
     resposta_login_gerente = client.post(
         "/auth/login",
         json={
@@ -443,7 +436,6 @@ def test_fluxo_completo_pedido(client):
 
     assert token_gerente
 
-    # 8. Marcar pedido como PRONTO
     resposta_pronto = client.patch(
         f"/pedidos/{pedido_id}/pronto",
         headers={
@@ -454,7 +446,6 @@ def test_fluxo_completo_pedido(client):
     assert resposta_pronto.status_code == 200
     assert resposta_pronto.json()["status"] == "PRONTO"
 
-    # 9. Marcar pedido como ENTREGUE
     resposta_entregue = client.patch(
         f"/pedidos/{pedido_id}/entregue",
         headers={
