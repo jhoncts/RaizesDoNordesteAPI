@@ -12,9 +12,9 @@ from app.domain.enums import (
 
 
 class UsuarioCriacao(BaseModel):
-    nome: str
+    nome: str = Field(min_length=1)
     email: EmailStr
-    senha: str
+    senha: str = Field(min_length=1)
 
 
 class UsuarioResposta(BaseModel):
@@ -69,6 +69,7 @@ class ProdutoCriacao(BaseModel):
         max_digits=10,
         decimal_places=2,
     )
+
 
 class ProdutoResposta(BaseModel):
     id: int
