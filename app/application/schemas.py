@@ -64,8 +64,11 @@ class UnidadeResposta(BaseModel):
 class ProdutoCriacao(BaseModel):
     nome: str
     descricao: str | None = None
-    preco: Decimal
-
+    preco: Decimal = Field(
+        gt=0,
+        max_digits=10,
+        decimal_places=2,
+    )
 
 class ProdutoResposta(BaseModel):
     id: int

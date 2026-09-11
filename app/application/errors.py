@@ -46,6 +46,15 @@ async def tratar_erro_validacao(
     request: Request,
     exc: RequestValidationError,
 ):
+    detalhes = [
+        {
+            "loc": erro["loc"],
+            "msg": erro["msg"],
+            "type": erro["type"],
+        }
+        for erro in exc.errors()
+    ]
+
     return JSONResponse(
         status_code=422,
         content=jsonable_encoder(
@@ -54,7 +63,7 @@ async def tratar_erro_validacao(
                     "status": 422,
                     "mensagem": "Erro de validação dos dados enviados",
                     "caminho": request.url.path,
-                    "detalhes": exc.errors(),
+                    "detalhes": detalhes,
                 }
             }
         ),
