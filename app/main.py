@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.auth import router as auth_router
 from app.api.estoques import router as estoques_router
@@ -20,7 +21,7 @@ app = FastAPI(
 )
 
 app.add_exception_handler(
-    HTTPException,
+    StarletteHTTPException,
     tratar_erro_http,
 )
 
